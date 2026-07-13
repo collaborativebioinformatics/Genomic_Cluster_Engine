@@ -231,10 +231,6 @@ def run_phased_sequences(boundaries_file: pathlib.Path,
 # CLI wrapper
 # -------------------------------------------------------------------------
 def run(boundaries_file, vcf, ref, chr_map, chr, out, samples_file, threads=None, gpu=False, gpu_id=0):
-
-    # Force CPU
-    gpu = False
-    
     run_phased_sequences(
         pathlib.Path(boundaries_file),
         pathlib.Path(vcf),
@@ -287,4 +283,5 @@ if __name__ == "__main__":
     except Exception as e:
         sys.stderr.write(f"ERROR in {pathlib.Path(sys.argv[0]).name}: {repr(e)}\n")
         sys.exit(1)
+
 
