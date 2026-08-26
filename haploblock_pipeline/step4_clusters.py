@@ -261,3 +261,26 @@ def run_clusters(
             logger.error("%s:%s-%s", chrom, s, e)
     else:
         logger.info("ALL DONE")
+
+
+# ----------------------------------------------------------------------
+# Wrapper for pipeline
+# ----------------------------------------------------------------------
+def run(boundaries_file, merged_consensus_dir, variant_counts, chr, out,
+        threads=None, cov_mode=0, gpu=None, gpu_id=None, max_retries=2):
+    """
+    gpu/gpu_id accepted-and-ignored: MMseqs2 has no GPU-accelerated
+    clustering path (only its search/profile-alignment functions do),
+    so this step stays CPU-only regardless of pipeline.gpu in the config.
+
+    """
+    run_clusters(
+        boundaries_file=pathlib.Path(boundaries_file),
+        merged_consensus_dir=pathlib.Path(merged_consensus_dir),
+        variant_counts_file=pathlib.Path(variant_counts),
+        chrom=str(chr),
+        out_dir=pathlib.Path(out),
+        cov_mode=cov_mode,
+        threads=threads,
+        max_retries=max_retries,
+    )

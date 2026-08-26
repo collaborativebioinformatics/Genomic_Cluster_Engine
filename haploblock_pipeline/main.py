@@ -53,8 +53,8 @@ def main():
         use_gpu = False
 
     logger.info(f"GPU enabled: {use_gpu} (gpu_id={gpu_id})")
-        
-   
+
+
     # ----------------------------
     # Threads configuration
     # ----------------------------
@@ -72,9 +72,8 @@ def main():
                 recombination_file=cfg["data"]["recombination_file"],
                 chr=cfg["chromosome"]["number"],
                 out=cfg["outputs"]["out_dir"],
-                threads=threads
-                #gpu=use_gpu, # CPU only for now 
-                #gpu_id=gpu_id
+                threads=threads,
+                gpu=use_gpu
             )
 
         # ---- STEP 2 ---------------------------------------------------------
@@ -144,4 +143,3 @@ def main():
 
 if __name__ == "__main__":
     main()
-
