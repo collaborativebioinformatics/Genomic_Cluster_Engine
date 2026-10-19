@@ -55,10 +55,10 @@ RUN wget https://mmseqs.com/latest/mmseqs-linux-avx2.tar.gz -O /opt/mmseqs-linux
 # Clone repo
 # -------------------------------------------------------------------
 WORKDIR /app
-RUN git clone https://github.com/collaborativebioinformatics/Haploblock_Clusters_ElixirBH25.git
-#RUN git clone https://github.com/MauricioMoldes/Haploblock_Clusters_ElixirBH25.git
+RUN git clone https://github.com/collaborativebioinformatics/Genomic_Cluster_Engine.git
+#RUN git clone https://github.com/MauricioMoldes/Genomic_Cluster_Engine.git
 
-WORKDIR /app/Haploblock_Clusters_ElixirBH25
+WORKDIR /app/Genomic_Cluster_Engine
 
 # Install Python dependencies (including GPU CuPy)
 COPY requirements.txt .
@@ -71,8 +71,8 @@ RUN pip install --no-cache-dir -r requirements.txt
 # -------------------------------------------------------------------
 # Download data
 # -------------------------------------------------------------------
-RUN mkdir -p /app/Haploblock_Clusters_ElixirBH25/data && \
-    cd /app/Haploblock_Clusters_ElixirBH25/data && \
+RUN mkdir -p /app/Genomic_Cluster_Engine/data && \
+    cd /app/Genomic_Cluster_Engine/data && \
     echo "Downloading 1000 Genomes chr6 data..." && \
     wget -q https://ftp.1000genomes.ebi.ac.uk/vol1/ftp/data_collections/1000_genomes_project/release/20190312_biallelic_SNV_and_INDEL/ALL.chr6.shapeit2_integrated_snvindels_v2a_27022019.GRCh38.phased.vcf.gz && \
     wget -q https://ftp.1000genomes.ebi.ac.uk/vol1/ftp/data_collections/1000_genomes_project/release/20190312_biallelic_SNV_and_INDEL/ALL.chr6.shapeit2_integrated_snvindels_v2a_27022019.GRCh38.phased.vcf.gz.tbi && \
