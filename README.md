@@ -2,12 +2,16 @@
 
 This pipeline generates recombination-defined genomic hashes, unique identifiers that contain haplotype-resolved variant information. Every hash is a unique representation of an individual's genotype with a distinct combination of variants segragated across haploblocks. We also provide an example model for a hash-based genotype-to-phenotype mapping.
 
+#### Pipeline overview
+
+![GCE_schema.png](GCE_schema.png)
+
 
 # How to use this repo
 
 ```
-git clone https://github.com/collaborativebioinformatics/Haploblock_Clusters_ElixirBH25.git
-cd Haploblock_Clusters_ElixirBH25/
+git clone https://github.com/collaborativebioinformatics/Genomic_Cluster_Engine.git
+cd Genomic_Cluster_Engine/
 ```
 
 # Run the pipeline
@@ -25,7 +29,7 @@ docker build -t haploblock-pipeline .
 Run the Docker container interactively:
 ```
 docker run -it --rm \
-    -v host_mount_point/data:/app/Haploblock_Clusters_ElixirBH25/data \
+    -v host_mount_point/data:/app/Genomic_Cluster_Engine/data \
     haploblock-pipeline
 ```
 
@@ -53,7 +57,7 @@ To enable GPU acceleration for hashing, you must modify the pipeline configurati
 
 1. Enter the running container.
 2. Open the pipeline configuration file.
-3. Set the `gpu` flag to `true`.
+3. Set the `--gpu` flag to `true`.
 
 ### Example Configuration
 
@@ -69,8 +73,8 @@ pipeline:
 The pipeline can be also run in the non-interactive mode:
 ```
 docker run --rm \
-    -v host_mount_point/data:/app/Haploblock_Clusters_ElixirBH25/data \
-    -v host_mount_point/config/default.yaml:/app/Haploblock_Clusters_ElixirBH25/config/default.yaml \
+    -v host_mount_point/data:/app/Genomic_Cluster_Engine/data \
+    -v host_mount_point/config/default.yaml:/app/Genomic_Cluster_Engine/config/default.yaml \
     haploblock-pipeline \
     python3 main.py --config config/default.yaml
 ```
@@ -85,7 +89,7 @@ docker run --rm \
 
 ### Configure Python environment and install dependencies
 
-For Python dependencies see [requirements.txt](requirements.txt). For other dependencies and how to install them see [install_dependencies.md](install_dependencies.md). Follow the instructions *carefully*: the pipeline requires samtools, bcftools, htslib (see https://www.htslib.org/) and MMSeqs2 (https://github.com/soedinglab/MMseqs2), all must be simlinked in `/usr/bin` or exported to PATH.
+For Python dependencies see [requirements.txt](requirements.txt). For other dependencies and how to install them see [install_dependencies.md](install_dependencies.md). Follow the instructions *carefully*: the pipeline requires samtools, bcftools, htslib (see https://www.htslib.org/) and MMseqs2 (https://github.com/soedinglab/MMseqs2), all must be simlinked in `/usr/bin` or exported to PATH.
 
 
 ### Data
@@ -96,7 +100,7 @@ All data listed below must be downloaded into `data/`:
 cd data/
 ```
 
-1. Recombination map from Halldorsson et al., 2019 with empirically defined genome-wide recombination rates:
+1. Recombination map from Halldorsson et al. 2019 with empirically defined genome-wide recombination rates:
 ```
 ## Download https://www.science.org/doi/suppl/10.1126/science.aau1043/suppl_file/aau1043_datas3.gz
 ## Upload the file to the data/ directory
@@ -127,7 +131,7 @@ gzip -d chr6.fa.gz
 bgzip chr6.fa
 ```
 
-Optionally for testing, if you want to run the pipeline for one population from 1000Genomes, you will also need a TSV file with the list of samples downloaded in data/, eg. CHB can be downloaded from: https://www.internationalgenome.org/data-portal/population/CHB
+Optionally for testing, if you want to run the pipeline for one only population from 1000Genomes, you will also need a TSV file with the list of samples downloaded in data/, e.g. CHB can be downloaded from: https://www.internationalgenome.org/data-portal/population/CHB
 
 
 #### 1. Generate haploblock boundaries:
@@ -142,16 +146,16 @@ python3 haploblock_pipeline/step1_haploblocks.py \
 This step creates:
 - **haploblock boundaries**: TSV file with header and 2 columns (START END)
 
-For a detailed description of how haplobock boundaries are defined see [https://github.com/jedrzejkubica/Elixir-BH-2025](https://github.com/jedrzejkubica/Elixir-BH-2025) as well as Halldorsson2019.
+For a detailed description of how haplobock boundaries are defined see [https://github.com/jedrzejkubica/Elixir-BH-2025](https://github.com/jedrzejkubica/Elixir-BH-2025) as well as Halldorsson et al. 2019.
 
 
 #### 2. Generate haploblock phased sequences:
 
 This step generates a phased FASTA file for each individual and each haploblock by extracting sequence segments defined by the haploblock boundaries from the input VCF. A temporary directory is created inside --out_dir, where the consensus phased haploblock sequences are stored. It also computes summary statistics on the number of variants per haploblock. These values are written to out_dir/variant_counts.tsv, a four-column table containing START, END, MEAN, STDEV.
 
-NOTE: VCF file has "6" instead of "chr6", which is required by bcftools consensus, therefore create a file chr_map with one chromosome number-to-name mapping per line (e.g., "6 chr6").
+NOTE: VCF file has "6" instead of "chr6", which is required by bcftools consensus, therefore create a file chr_map with one chromosome number-to-name mapping per line (e.g. "6 chr6").
 
-Here is the instruction for **one haploblock (TNFa)** (example):
+Here is an **example** instruction for **one haploblock (corresponding to TNFa)**:
 ```
 python haploblock_pipeline/step2_phased_sequences.py \
     --boundaries_file data/haploblock_boundaries_chr6_TNFa.tsv \
@@ -182,7 +186,7 @@ python haploblock_pipeline/step2_phased_sequences.py [...] --samples data/igsr-c
 
 This step produces a single merged phased FASTA file for each haploblock with sequences of all individuals.
 
-Here is the instruction for **one haploblock (TNFa)**:
+Here is an **example** instruction for **one haploblock (corresponding to TNFa)**:
 ```
 haploblock_pipeline/step3_merge_fasta.py out_dir/TNFa/tmp/consensus_fasta out_dir/TNFa/haploblock_phased_seq_merged
 
@@ -198,7 +202,7 @@ haploblock_pipeline/step3_merge_fasta.py out_dir/tmp/consensus_fasta out_dir/hap
 
 #### 4. Generate haploblock clusters:
 
-This step computes haploblock clusters using MMSeqs2. Make sure MMSeqs2 is available in PATH.
+This step computes haploblock clusters using MMseqs2. Make sure MMseqs2 is available in PATH.
 
 Here is the instruction for **one haploblock (TNFa)**:
 ```
@@ -220,7 +224,7 @@ python haploblock_pipeline/step4_clusters.py \
     --out out_dir/
 ```
 
-This step uses the merged phased sequences (--merged_consensus_dir) and variant statistics (--variant_counts) to derive MMSeqs2 parameters: minimum sequence identity and coverage thresholds. It produces one cluster table per haploblock, saved in out_dir/clusters/.
+This step uses the merged phased sequences (--merged_consensus_dir) and variant statistics (--variant_counts) to derive MMseqs2 parameters: minimum sequence identity and coverage thresholds. It produces one cluster table per haploblock, saved in out_dir/clusters/.
 
 
 ### 5. Generate hashes:
@@ -288,11 +292,13 @@ The parameters $\beta_0, \alpha_{ih},$ and the haploblock-specific projection ve
 
 This formulation allows each haploblock to contribute through a learnable haploblock-specific projection vector $U_h$ and scalars $\alpha_{ih}$ to capture individual-specific haploblock weights.
 
+
+
 # Results
 
 ## Testing the pipeline
 
-We found 2,288 haploblocks in chromosome 6 for 26 populations in the 1000 Genomes Project (2,548 individuals). See [haploblock_boundaries_chr6.tsv](data/haploblock_boundaries_chr6.tsv) for these haploblock boundaries (high recombination rates are selected based on Gaussian smoothing).
+We found 2,288 haploblocks in chromosome 6, see [haploblock_boundaries_chr6.tsv](data/haploblock_boundaries_chr6.tsv).
 
 We generated haploblock phased sequences (format: sample_chr_region_start-end_hap0/1.fa) for the CBH, PUR and GBR populations and then for the full set of 26 populations from the 1000 Genomes
 Project for the following genomic regions:
@@ -308,19 +314,29 @@ During the hackathon we ran the pipeline on a Linux-based machine with 8 CPU cor
 
 # Acknowlegdements
 
-This work was supported by ELIXIR, the research infrastructure for life science data, and conducted at the ELIXIR BioHackathon Europe.
+This work was supported by ELIXIR, the research infrastructure for life science data, and conducted at the [ELIXIR BioHackathon Europe 2025](https://biohackathon-europe.org/).
 
 
-## Citing this work
+## How to cite
 
-Kubica, J., Jethwani, H., Banecki, K. H., Moldes, M., Plewczynski, D., & Busby, B. (2025). Decoding complex genotype-phenotype interactions by discretizing the genome. https://doi.org/10.37044/osf.io/xhkc3_v1
+If you use the Genomic Cluster Engine, please cite our [preprint](https://doi.org/10.37044/osf.io/xhkc3_v1):
 
+```
+@ARTICLE{Kubica2025-ds,
+  title  = "Decoding complex genotype-phenotype interactions by discretizing the
+            genome",
+  author = "Kubica, Jędrzej and Jethwani, Hetvi and Banecki, Krzysztof H and
+            Moldes, Mauricio and Plewczynski, Dariusz and Busby, Ben",
+  year   =  2025,
+  doi    = "10.37044/osf.io/xhkc3\_v1"
+}
+```
 
 
 # References
 
-1. Palsson, G., Hardarson, M.T., Jonsson, H. et al. Complete human recombination maps. Nature 639, 700–707 (2025). https://doi.org/10.1038/s41586-024-08450-5
+1. The 1000 Genomes Project Consortium (2015). A global reference for human genetic variation. Nature, 526(7571), 68–74. https://doi.org/10.1038/nature15393
 
 2. Bjarni V. Halldorsson et al., Characterizing mutagenic effects of recombination through a sequence-level genetic map. Science363,eaau1043 (2019). DOI:10.1126/science.aau1043
 
-3. Yu-Hsiang Tseng, Sumit Walia, Yatish Turakhia, "Ultrafast and ultralarge multiple sequence alignments using TWILIGHT", Bioinformatics, Volume 41, Issue Supplement_1, July 2025, Pages i332–i341, doi: 10.1093/bioinformatics/btaf212
+3. Steinegger, M., & Söding, J. (2017). MMseqs2 enables sensitive protein sequence searching for the analysis of massive data sets. Nature Biotechnology, 35(11), 1026–1028. https://doi.org/10.1038/nbt.3988
