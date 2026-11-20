@@ -314,21 +314,20 @@ During the hackathon we ran the pipeline on a Linux-based machine with 8 CPU cor
 
 # Acknowlegdements
 
-This work was supported by ELIXIR, the research infrastructure for life science data, and conducted at the [ELIXIR BioHackathon Europe 2025](https://biohackathon-europe.org/).
+This work was supported by ELIXIR, the research infrastructure for life science data, and conducted at the ELIXIR BioHackathons Europe 2025 and 2026 (https://biohackathon-europe.org/).
 
 
 ## How to cite
 
-If you use the Genomic Cluster Engine, please cite our [preprint](https://doi.org/10.37044/osf.io/xhkc3_v1):
+If you use the Genomic Cluster Engine, please cite our [preprint](https://doi.org/10.64898/2026.11.18.767536):
 
 ```
-@ARTICLE{Kubica2025-ds,
-  title  = "Decoding complex genotype-phenotype interactions by discretizing the
-            genome",
-  author = "Kubica, Jędrzej and Jethwani, Hetvi and Banecki, Krzysztof H and
-            Moldes, Mauricio and Plewczynski, Dariusz and Busby, Ben",
-  year   =  2025,
-  doi    = "10.37044/osf.io/xhkc3\_v1"
+@ARTICLE{Kubica2026-ed,
+  title       = "Generation of a public dataset for etiological subtyping with
+                 the Genomic Cluster Engine",
+  author      = "Kubica, Jędrzej and Moldes, Mauricio and Busby, Ben",
+  year        =  2026,
+  doi         = "10.64898/2026.11.18.767536"
 }
 ```
 
